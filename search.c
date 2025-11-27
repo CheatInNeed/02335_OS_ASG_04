@@ -239,11 +239,18 @@ int main(int argc, char ** argv) {
     printf("Proper run no. %d using %d tasks.", k, tasks);
 
     start = micros();
-  
+
+    int chunkSize = text_length/tasks;
+
     for (i = 0; i < tasks; i++) {
       Interval * chunk = malloc(sizeof(Interval));
-      chunk->from = 0;                         // TODO: find proper limits
-      chunk->to = text_length;                 
+      chunk->from = (i * chunkSize);
+      chunk->to = (i + 1) * chunkSize + pattern_length - 1;
+
+      if (i == tasks - 1 || chunk->to > text_length) {
+        chunk->to = text_length;
+      }
+
       taskp[i] = task_create(chunk, search);
       pool_submit(taskp[i]);
     }
